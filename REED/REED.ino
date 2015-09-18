@@ -68,10 +68,9 @@ void setup()
 {
   Serial.begin(115200);
   pinMode(pinMosfet,OUTPUT);
-  pinMode(pinREED,INPUT);
   digitalWrite(pinMosfet,HIGH);
+  pinMode(pinREED,INPUT);
   lcd.begin(16,2);
-  rotMax = 40; //default value for maximum # of rotations
 }
   
 void loop() 
