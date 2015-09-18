@@ -2,8 +2,8 @@
 // LCD pinout
 // lcdRS - 12, lcdEN - 11, lcd7 - 2, lcd6 - 3, lcd5 - 4, lcd4 - 5
 
-#define MAXROT 60         //maximum number of allowed rotations
-#define N_SLOW 4          //number of last slower cycles
+#define MAXROT 60         // maximum number of allowed rotations
+#define N_SLOW 4          // number of last slower cycles
 #define CYCLE_DELAY 2000  // delay between cycles in ms
 
 LiquidCrystal lcd(12,11,5,4,3,2);
@@ -60,7 +60,7 @@ int readRotMax(int pinPot)
 {
   // Sets number of rotations from potentiometer readout
   int tmp = analogRead(pinPot);
-  int out = map(tmp,0,1023,0,MAXROT);
+  int out = map(tmp, 0, 1023, 0, MAXROT);
   return out;
 }
 
@@ -97,7 +97,7 @@ void loop()
         checkTimer(tStart, &counter, &halt, &timerStart);
       }
     }
-    //Increment the counter and update LCD display
+    // Increment the counter and update LCD display
     counter ++;
     Serial.println(counter);
     lcdDisplay(rotMax, counter);
