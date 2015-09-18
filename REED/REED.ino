@@ -10,8 +10,8 @@ LiquidCrystal lcd(12,11,5,4,3,2);
 int pinREED   = 8;
 int pinMosfet = 9;
 int pinPot    = A0; //potentiometer pin
-int reedVal   = 1;
 int counter   = 0;
+int reedVal;
 int rotMax;        //max number of rotations
   
 int tStart;
