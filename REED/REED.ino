@@ -34,7 +34,7 @@ void setup() {
 }
 
 
-oid lcdDisplay(int rotMax, int counter) {
+void lcdDisplay(int rotMax, int counter) {
   // Controls information to be displayed on LCD screen
   lcd.setCursor(0,0);
   if (rotMax < 10){
