@@ -1,13 +1,10 @@
 #include<LiquidCrystal.h>
-//lcdRS - 12
-//lcdEN - 11
-//lcd7 - 2
-//lcd6 - 3
-//lcd5 - 4
-//lcd4 - 5
+// LCD pinout
+// lcdRS - 12, lcdEN - 11, lcd7 - 2, lcd6 - 3, lcd5 - 4, lcd4 - 5
 
 #define MAXROT 60 //maximum number of allowed rotations
 #define N_SLOW 4 //number of last slower cycles
+#define CYCLE_DELAY 2000 // delay between cycles in ms
 
 LiquidCrystal lcd(12,11,5,4,3,2);
 int pinREED = 8;
@@ -18,25 +15,14 @@ int counter = 0;
 int rotMax; //max number of rotations
 
 int tStart;
-int myTimer;
 boolean timerStart = true;
 boolean halt = false;
-
-
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(pinMosfet,OUTPUT);
-  pinMode(pinREED,INPUT);
-  digitalWrite(pinMosfet,HIGH);
-  lcd.begin(16,2);
-  rotMax = 40; //default value for maximum # of rotations
-}
-
 
 void lcdDisplay(int rotMax, int counter) {
   // Controls information to be displayed on LCD screen
   lcd.setCursor(0,0);
+  // When rotMax has fewer than 2 digits, display string with one 
+  // white space more
   if (rotMax < 10){
     lcd.print("Max. rot.:  ");
    }
@@ -54,18 +40,46 @@ void lcdDisplay(int rotMax, int counter) {
   lcd.print(counter);
 }
  
+void checkTimer(int tStart, int *counter, boolean *halt, boolean *timerStart)
+// Check if the time after the drill stopped passed.
+// If yes :
+//    ___RESET___ the counter !! 
+//    clos the MOSFET and set the motor ready for new set or rotations
+// 
+{
+  int currentTime = millis();
+        if (currentTime - tStart > CYCLE_DELAY){
+           *counter = 0;
+           *halt = false;
+           digitalWrite(pinMosfet,1);
+           *timerStart = true;
+        }
+}
   
-int readRotMax(int pinPot){
+int readRotMax(int pinPot)
+{
   // Sets number of rotations from potentiometer readout
   int tmp = analogRead(pinPot);
   int out = map(tmp,0,1023,0,MAXROT);
   return out;
 }
+
+void setup() 
+{
+  Serial.begin(115200);
+  pinMode(pinMosfet,OUTPUT);
+  pinMode(pinREED,INPUT);
+  digitalWrite(pinMosfet,HIGH);
+  lcd.begin(16,2);
+  rotMax = 40; //default value for maximum # of rotations
+}
   
-  
-void loop() {
+void loop() 
+{
+  // Read value of potentiomter and update the LCD
   rotMax = readRotMax(pinPot);
   lcdDisplay(rotMax, counter);
+  
   reedVal = digitalRead(pinREED);
   delayMicroseconds(1);
   if (!reedVal)
@@ -75,25 +89,20 @@ void loop() {
       // Wait until magnet passes the swtich before incrementing the counter.
       reedVal = digitalRead(pinREED);
       
-      // If it happens that the drill stopped with magnet facing read switch
-      // we still want to be able to change to # of max allowed rotations 
-      
+      // Allow for control while REED swtich is closed
       rotMax = readRotMax(pinPot);
       lcdDisplay(rotMax, counter);
       
       if (halt){
-        myTimer = millis();      
-        if (myTimer-tStart > 2000){
-           counter = 0;
-           halt = false;
-           digitalWrite(pinMosfet,1);
-           timerStart = true;
-        }
+        // Keep checking the timer while  REED switch is closed 
+        checkTimer(tStart, &counter, &halt, &timerStart);
       }
     }
+    //Increment the counter and update LCD display
     counter ++;
     Serial.println(counter);
     lcdDisplay(rotMax, counter);
+    
     // Slow down for last two rotations
     if (counter == rotMax - N_SLOW){
       analogWrite(pinMosfet,100);
@@ -109,13 +118,7 @@ void loop() {
       timerStart = false;
       digitalWrite(pinMosfet,0);
     }
-    myTimer = millis();      
-    if (myTimer-tStart > 2000){
-       counter = 0;
-       halt = false;
-       digitalWrite(pinMosfet,1);
-       timerStart = true;
-    }
+    checkTimer(tStart, &counter, &halt, &timerStart);
   }
 }
 
