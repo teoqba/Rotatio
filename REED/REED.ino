@@ -2,9 +2,9 @@
 // LCD pinout
 // lcdRS - 12, lcdEN - 11, lcd7 - 2, lcd6 - 3, lcd5 - 4, lcd4 - 5
 
-#define MAXROT 60 //maximum number of allowed rotations
-#define N_SLOW 4 //number of last slower cycles
-#define CYCLE_DELAY 2000 // delay between cycles in ms
+#define MAXROT 60         //maximum number of allowed rotations
+#define N_SLOW 4          //number of last slower cycles
+#define CYCLE_DELAY 2000  // delay between cycles in ms
 
 LiquidCrystal lcd(12,11,5,4,3,2);
 int pinREED   = 8;
